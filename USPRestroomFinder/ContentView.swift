@@ -42,5 +42,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environment(\.httpClient, RestroomClient())
+        .environment(\.httpClient, MockRestroomClient())
 }

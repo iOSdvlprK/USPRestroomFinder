@@ -12,6 +12,7 @@ struct ContentView: View {
     @Environment(\.httpClient) private var restroomClient
     @State private var locationManager = LocationManager.shared
     @State private var restrooms: [Restroom] = []
+    @State private var selectedRestroom: Restroom?
     
     private func loadRestrooms() async {
         guard let region = locationManager.region else { return }
@@ -28,7 +29,17 @@ struct ContentView: View {
         ZStack {
             Map {
                 ForEach(restrooms) { restroom in
-                    Marker(restroom.name, coordinate: restroom.coordinate)
+                    Annotation(restroom.name, coordinate: restroom.coordinate) {
+                        Text("🚻")
+                            .scaleEffect(selectedRestroom == restroom ? 2.0 : 1.0)
+                            .font(.title)
+                            .onTapGesture {
+                                withAnimation {
+                                    selectedRestroom = restroom
+                                }
+                            }
+                            .animation(.spring(duration: 0.25), value: selectedRestroom)
+                    }
                 }
                 
                 UserAnnotation()

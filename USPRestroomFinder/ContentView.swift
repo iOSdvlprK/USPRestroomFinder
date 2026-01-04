@@ -13,9 +13,12 @@ struct ContentView: View {
     @State private var locationManager = LocationManager.shared
     @State private var restrooms: [Restroom] = []
     @State private var selectedRestroom: Restroom?
+    @State private var visibleRegion: MKCoordinateRegion?
+    @State private var position: MapCameraPosition =
+        .userLocation(fallback: .apple)
     
     private func loadRestrooms() async {
-        guard let region = locationManager.region else { return }
+        guard let region = visibleRegion else { return }
         let coordinate = region.center
         
         do {
@@ -27,7 +30,7 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            Map {
+            Map(position: $position) {
                 ForEach(restrooms) { restroom in
                     Annotation(restroom.name, coordinate: restroom.coordinate) {
                         Text("🚻")
@@ -48,10 +51,25 @@ struct ContentView: View {
         .task(id: locationManager.region) {
             await loadRestrooms()
         }
+        .onMapCameraChange { context in
+            visibleRegion = context.region
+        }
+        .overlay(alignment: .topLeading) {
+            Button {
+                Task {
+                    await loadRestrooms()
+                }
+            } label: {
+                Image(systemName: "arrow.clockwise.circle.fill")
+                    .font(.largeTitle)
+                    .foregroundStyle(.white, .blue)
+            }
+            .padding()
+        }
     }
 }
 
 #Preview {
     ContentView()
-        .environment(\.httpClient, MockRestroomClient())
+        .environment(\.httpClient, RestroomClient())
 }

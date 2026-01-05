@@ -15,7 +15,7 @@ struct ContentView: View {
     @State private var selectedRestroom: Restroom?
     @State private var visibleRegion: MKCoordinateRegion?
     @State private var position: MapCameraPosition =
-        .userLocation(fallback: .apple)
+        .userLocation(fallback: .automatic)
     
     private func loadRestrooms() async {
         guard let region = visibleRegion else { return }
@@ -49,10 +49,17 @@ struct ContentView: View {
             }
         }
         .task(id: locationManager.region) {
-            await loadRestrooms()
+            if let region = locationManager.region {
+                visibleRegion = region
+                await loadRestrooms()
+            }
         }
         .onMapCameraChange { context in
             visibleRegion = context.region
+        }
+        .sheet(item: $selectedRestroom) { restroom in
+            RestroomDetailView(restroom: restroom)
+                .presentationDetents([.fraction(0.25)])
         }
         .overlay(alignment: .topLeading) {
             Button {

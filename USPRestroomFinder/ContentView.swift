@@ -59,6 +59,7 @@ struct ContentView: View {
         }
         .sheet(item: $selectedRestroom) { restroom in
             RestroomDetailView(restroom: restroom)
+                .padding()
                 .presentationDetents([.fraction(0.25)])
         }
         .overlay(alignment: .topLeading) {

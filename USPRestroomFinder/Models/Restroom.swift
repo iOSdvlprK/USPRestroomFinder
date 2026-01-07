@@ -7,6 +7,8 @@
 
 import Foundation
 import CoreLocation
+import MapKit
+import Contacts
 
 struct Restroom: Decodable, Identifiable, Equatable {
     let id: Int
@@ -41,5 +43,20 @@ struct Restroom: Decodable, Identifiable, Equatable {
         case changingTable = "changing_table"
         case latitude
         case longitude
+    }
+}
+
+extension Restroom {
+    var mapItem: MKMapItem {
+        var addressDictionary: [String: Any] = [
+            CNPostalAddressStreetKey: self.street,
+            CNPostalAddressCityKey: self.city,
+            CNPostalAddressStateKey: self.state
+        ]
+        
+        let placemark = MKPlacemark(coordinate: coordinate, addressDictionary: addressDictionary)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = name
+        return mapItem
     }
 }

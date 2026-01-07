@@ -44,6 +44,7 @@ struct RestroomDetailView: View {
             }
             
             AmenitiesView(restroom: restroom)
+            ActionButtons(mapItem: restroom.mapItem)
         }
     }
 }
